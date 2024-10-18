@@ -21,7 +21,7 @@ public class FirebaseController {
     }
 
     @GetMapping("/read")
-    public String readData(@RequestParam String path) {
-        return firebaseService.readData(path).toString();
+    public void readData(@RequestParam String path, FirebaseService.FirebaseCallback callback) {
+        firebaseService.readData(path, callback);
     }
 }
