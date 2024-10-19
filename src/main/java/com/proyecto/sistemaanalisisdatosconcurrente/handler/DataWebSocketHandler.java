@@ -18,21 +18,18 @@ public class DataWebSocketHandler extends TextWebSocketHandler {
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-        // Cuando un cliente se conecta, se agrega la sesión a la lista
         sessions.add(session);
         System.out.println("New WebSocket connection established: " + session.getId());
     }
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
-        // Cuando un cliente se desconecta, se elimina la sesión
         sessions.remove(session);
         System.out.println("WebSocket connection closed: " + session.getId());
     }
 
     @Override
     public void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
-        // Aquí puedes manejar los mensajes entrantes desde el cliente si es necesario
         System.out.println("Received message from client: " + message.getPayload());
     }
 

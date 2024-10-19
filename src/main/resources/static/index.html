@@ -83,7 +83,6 @@
             .attr("width", xScale.bandwidth())
             .attr("height", d => height - yScale(d.value));
 
-        // Remover barras que ya no están en los datos
         bars.exit().remove();
     }
 </script>

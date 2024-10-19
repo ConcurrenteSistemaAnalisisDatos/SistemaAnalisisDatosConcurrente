@@ -15,7 +15,6 @@ public class FirebaseConfig {
 
     @Bean
     public FirebaseApp initializeFirebase() throws IOException {
-        // Intenta cargar el archivo desde el classpath
         InputStream serviceAccount = getClass().getClassLoader().getResourceAsStream("serviceKeyJava.json");
 
         if (serviceAccount == null) {

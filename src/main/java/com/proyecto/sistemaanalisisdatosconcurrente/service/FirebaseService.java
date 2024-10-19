@@ -54,7 +54,7 @@ public class FirebaseService {
                     // Validar que los datos no sean nulos antes de procesarlos
                     if (id == null || age == null || gender == null || serumCreatinine == null || smoking == null) {
                         System.out.println("Missing data in snapshot: " + child.toString());
-                        continue;  // Saltar este nodo si falta algún dato importante
+                        continue;
                     }
 
                     // Agregar datos procesados al mapa
@@ -67,7 +67,6 @@ public class FirebaseService {
                     // Imprimir el mapa de datos procesados para depuración
                     System.out.println("Processed data: " + processedData);
 
-                    // Añadir al listado de datos procesados
                     processedDataList.add(processedData);
                 }
 
@@ -77,7 +76,6 @@ public class FirebaseService {
                     webSocketHandler.sendProcessedData(processedDataList);
                 });
 
-                // Llamar al callback con el dataSnapshot original (si es necesario para otros propósitos)
                 callback.onCallback(dataSnapshot);
             }
 
@@ -90,7 +88,6 @@ public class FirebaseService {
         });
     }
 
-    // Definir la interfaz FirebaseCallback para manejar los callbacks
     public interface FirebaseCallback {
         void onCallback(DataSnapshot dataSnapshot);
         void onError(DatabaseError databaseError);

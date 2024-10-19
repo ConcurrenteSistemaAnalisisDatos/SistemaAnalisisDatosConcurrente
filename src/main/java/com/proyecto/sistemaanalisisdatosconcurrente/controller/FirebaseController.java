@@ -14,7 +14,6 @@ public class FirebaseController {
         this.firebaseService = firebaseService;
     }
 
-    // Endpoint para leer datos desde Firebase
     @GetMapping("/read")
     public void readData(@RequestParam String path, FirebaseService.FirebaseCallback callback) {
         firebaseService.readData(path, callback);

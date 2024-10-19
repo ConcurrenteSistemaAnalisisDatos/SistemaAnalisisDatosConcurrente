@@ -31,7 +31,6 @@ public class SistemaAnalisisDatosConcurrenteApplication {
                 // Iniciar el procesamiento concurrente una vez que los datos se leen
                 // Los datos ya se están procesando concurrentemente en FirebaseService
             }
-
             @Override
             public void onError(DatabaseError databaseError) {
                 System.err.println("Error reading data: " + databaseError.getMessage());

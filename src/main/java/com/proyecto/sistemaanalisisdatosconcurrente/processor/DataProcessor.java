@@ -17,11 +17,9 @@ public class DataProcessor extends RecursiveTask<List<DataSnapshot>> {
 
     @Override
     protected List<DataSnapshot> compute() {
-        // Si el conjunto de datos es lo suficientemente pequeño, lo procesamos directamente
         if (data.size() <= THRESHOLD) {
             return process(data);
         } else {
-            // De lo contrario, lo dividimos en tareas más pequeñas
             int mid = data.size() / 2;
             DataProcessor firstHalf = new DataProcessor(data.subList(0, mid));
             DataProcessor secondHalf = new DataProcessor(data.subList(mid, data.size()));
@@ -37,7 +35,6 @@ public class DataProcessor extends RecursiveTask<List<DataSnapshot>> {
         }
     }
 
-    // Procesamos los datos reales de Firebase
     private List<DataSnapshot> process(List<DataSnapshot> data) {
         List<DataSnapshot> processedData = new ArrayList<>();
 
@@ -45,13 +42,13 @@ public class DataProcessor extends RecursiveTask<List<DataSnapshot>> {
         int count = 0;
 
         for (DataSnapshot snapshot : data) {
-            // Leer los campos que necesitas del DataSnapshot
+            // Lee los campos necesarios de cada snapshot
             Long id = (Long) snapshot.child("ID").getValue();
             String gender = (String) snapshot.child("gender").getValue();
             Long age = (Long) snapshot.child("age").getValue();
             Long smoking = (Long) snapshot.child("smoking").getValue();
 
-            // Aquí manejamos la creatinina, chequeamos si es Long o Double
+            // Datos de la creatinina, chequeamos si es Long o Double
             Object serumCreatinineObj = snapshot.child("serum creatinine").getValue();
             Double serumCreatinine = null;
 
@@ -61,7 +58,7 @@ public class DataProcessor extends RecursiveTask<List<DataSnapshot>> {
                 serumCreatinine = (Double) serumCreatinineObj;  // Ya es Double
             }
 
-            // Ejemplo de procesamiento: Filtrar fumadores y calcular la media de creatinina
+            // Filtrar fumadores y calcular la media de creatinina
             if (smoking != null && smoking == 1) { // Filtro: solo fumadores
                 System.out.println("Processing data for smoker ID: " + id + " Age: " + age + " Gender: " + gender);
                 if (serumCreatinine != null) {
@@ -70,9 +67,7 @@ public class DataProcessor extends RecursiveTask<List<DataSnapshot>> {
                 }
             }
 
-            // Puedes hacer cualquier otro tipo de procesamiento aquí
 
-            // Guardar el snapshot procesado
             processedData.add(snapshot);
         }
 

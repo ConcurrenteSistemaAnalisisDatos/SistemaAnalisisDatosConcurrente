@@ -16,6 +16,7 @@ public class WebSocketConfig implements WebSocketConfigurer {
         this.dataWebSocketHandler = dataWebSocketHandler;
     }
 
+    // Método
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
         registry.addHandler(dataWebSocketHandler, "/data").setAllowedOrigins("*");
