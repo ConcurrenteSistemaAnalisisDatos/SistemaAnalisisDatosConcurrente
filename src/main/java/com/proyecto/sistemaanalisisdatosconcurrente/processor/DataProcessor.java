@@ -1,4 +1,4 @@
-package com.proyecto.sistemaanalisisdatosconcurrente;
+package com.proyecto.sistemaanalisisdatosconcurrente.processor;
 
 import com.google.firebase.database.DataSnapshot;
 

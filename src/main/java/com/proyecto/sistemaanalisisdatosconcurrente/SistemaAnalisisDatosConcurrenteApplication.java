@@ -2,7 +2,7 @@ package com.proyecto.sistemaanalisisdatosconcurrente;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.proyecto.sistemaanalisisdatosconcurrente.Firebase.FirebaseService;
+import com.proyecto.sistemaanalisisdatosconcurrente.service.FirebaseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

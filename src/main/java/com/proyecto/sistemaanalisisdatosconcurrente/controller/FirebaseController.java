@@ -1,7 +1,7 @@
-package com.proyecto.sistemaanalisisdatosconcurrente.Firebase;
+package com.proyecto.sistemaanalisisdatosconcurrente.controller;
 
+import com.proyecto.sistemaanalisisdatosconcurrente.service.FirebaseService;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -14,14 +14,17 @@ public class FirebaseController {
         this.firebaseService = firebaseService;
     }
 
-    @PostMapping("/write")
-    public String writeData(@RequestParam String path, @RequestParam String data) {
-        firebaseService.writeData(path, data);
-        return "Data written successfully";
-    }
-
+    // Endpoint para leer datos desde Firebase
     @GetMapping("/read")
     public void readData(@RequestParam String path, FirebaseService.FirebaseCallback callback) {
         firebaseService.readData(path, callback);
     }
 }
+
+
+
+
+
+
+
+

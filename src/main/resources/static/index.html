@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-time Data Visualization</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        svg {
+            border: 1px solid black;
+        }
+        rect {
+            fill: steelblue;
+        }
+    </style>
+</head>
+<body>
+<h1>Real-time Data Visualization</h1>
+<svg width="800" height="400"></svg>
+
+<script>
+    const svg = d3.select("svg");
+    const width = svg.attr("width");
+    const height = svg.attr("height");
+
+    // Conectar con el WebSocket en el backend
+    const socket = new WebSocket("ws://localhost:8080/data");
+
+    // Verificar si la conexión WebSocket está abierta
+    socket.onopen = function() {
+        console.log("WebSocket connection opened.");
+    };
+
+    // Función que se ejecuta cuando se recibe un mensaje desde el WebSocket
+    socket.onmessage = function(event) {
+        const data = JSON.parse(event.data); // Parsear los datos JSON recibidos
+
+        console.log("Datos recibidos:", data); // Imprimir los datos recibidos para verificar
+
+        // Asegurarse de que los datos estén en el formato esperado
+        const processedData = data.map(d => ({
+            id: d.ID, // Usamos el campo 'ID' como identificador único
+            value: +d["serum creatinine"] // Convertir 'serum creatinine' a número
+        }));
+
+        console.log("Datos procesados para el gráfico:", processedData); // Verificar los datos procesados
+
+        updateGraph(processedData); // Llamar a la función para actualizar el gráfico
+    };
+
+    // Manejar errores del WebSocket
+    socket.onerror = function(error) {
+        console.error("WebSocket error:", error);
+    };
+
+    // Función para actualizar el gráfico con los nuevos datos
+    function updateGraph(data) {
+        // Escalar los valores para adaptarlos al tamaño del SVG
+        const yScale = d3.scaleLinear()
+            .domain([0, d3.max(data, d => d.value)]) // Escalar basado en los valores máximos de 'serum creatinine'
+            .range([height, 0]); // De abajo hacia arriba (invertido para D3)
+
+        const xScale = d3.scaleBand()
+            .domain(data.map(d => d.id)) // Asignar un espacio por cada barra basado en 'id'
+            .range([0, width])
+            .padding(0.1); // Espacio entre las barras
+
+        // Seleccionar todas las barras y hacer el binding de datos
+        const bars = svg.selectAll("rect")
+            .data(data, d => d.id);  // 'id' como clave de unión
+
+        // Actualizar las barras existentes
+        bars.attr("x", (d) => xScale(d.id))
+            .attr("y", d => yScale(d.value))
+            .attr("width", xScale.bandwidth())
+            .attr("height", d => height - yScale(d.value));
+
+        // Agregar nuevas barras si es necesario
+        bars.enter()
+            .append("rect")
+            .attr("x", (d) => xScale(d.id))
+            .attr("y", d => yScale(d.value))
+            .attr("width", xScale.bandwidth())
+            .attr("height", d => height - yScale(d.value));
+
+        // Remover barras que ya no están en los datos
+        bars.exit().remove();
+    }
+</script>
+</body>
+</html>

@@ -1,4 +1,4 @@
-package com.proyecto.sistemaanalisisdatosconcurrente.Firebase;
+package com.proyecto.sistemaanalisisdatosconcurrente.config;
 
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;
