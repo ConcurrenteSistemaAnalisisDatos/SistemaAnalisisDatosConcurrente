@@ -1,3 +1,5 @@
+Realizado por Samuel Muñoz, Marcos Ruiz, Pedro Velasco y Jacob Altenburger
+
 # Sistema de Análisis de Datos Concurrente
 
 Este proyecto es un sistema de análisis avanzado que permite gestionar y procesar flujos de datos biológicos en tiempo real. Utiliza Firebase para obtener datos, los procesa concurrentemente con técnicas de multihilo en Java, y visualiza los resultados utilizando D3.js en un entorno web.
