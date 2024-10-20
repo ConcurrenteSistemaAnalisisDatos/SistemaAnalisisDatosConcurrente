@@ -1,49 +1,84 @@
-# Atributos a analizar
+# Sistema de Análisis de Datos Concurrente
 
-## Descripción de Atributos
+Este proyecto es un sistema de análisis avanzado que permite gestionar y procesar flujos de datos biológicos en tiempo real. Utiliza Firebase para obtener datos, los procesa concurrentemente con técnicas de multihilo en Java, y visualiza los resultados utilizando D3.js en un entorno web.
 
-- **ID**: Identificador único para cada persona o registro. No se utiliza para análisis, pero sirve como referencia.
+## Descripción del Proyecto
 
-- **ALT (Alanina aminotransferasa)**: Enzima hepática. Valores elevados pueden indicar daño hepático.
+El sistema está diseñado para manejar múltiples flujos de datos de manera eficiente, garantizando la sincronización y el procesamiento en tiempo real sin afectar la performance del sistema. Se utilizan hilos concurrentes, técnicas de sincronización, WebSockets para enviar datos en tiempo real y D3.js para visualizar gráficas de rendimiento.
 
-- **AST (Aspartato aminotransferasa)**: Otra enzima hepática. Valores altos también pueden sugerir daño al hígado.
+### Componentes del Proyecto
 
-- **Cholesterol**: Colesterol total en sangre. Valores altos pueden ser un factor de riesgo para enfermedades cardíacas.
+El proyecto incluye varias clases y módulos clave que trabajan en conjunto para lograr el objetivo:
 
-- **GTP (Gamma-glutamiltransferasa)**: Enzima relacionada con la función hepática y el consumo de alcohol. Valores altos indican posible daño hepático o consumo excesivo de alcohol.
+### Clases Java
 
-- **HDL (High-Density Lipoprotein)**: Conocido como el "colesterol bueno". Niveles más altos se asocian con un menor riesgo de enfermedades cardíacas.
+#### 1. `FirebaseConfig`
+Esta clase configura Firebase para que se pueda conectar con la base de datos en tiempo real. Utiliza un archivo de credenciales para inicializar la aplicación Firebase.
 
-- **LDL (Low-Density Lipoprotein)**: Conocido como el "colesterol malo". Niveles elevados aumentan el riesgo de enfermedades cardíacas.
+- **Métodos**:
+  - `initializeFirebase`: Inicializa Firebase con las credenciales y la URL de la base de datos.
 
-- **Urine protein**: La presencia de proteínas en la orina puede ser un signo de daño renal. El valor 1 probablemente indica una cantidad mínima o no detectada de proteínas.
+#### 2. `WebSocketConfig`
+Esta clase habilita y configura WebSockets en la aplicación Spring Boot, lo que permite enviar y recibir datos en tiempo real.
 
-- **Age**: Edad del individuo. Es un buen atributo para hacer gráficos de tendencias o distribuciones por grupos de edad.
+- **Métodos**:
+  - `registerWebSocketHandlers`: Registra el handler de WebSocket que se encarga de manejar las conexiones entrantes.
 
-- **Dental caries**: Indica si la persona tiene caries dentales. Valor de 0 indica que no, mientras que un valor mayor a 0 podría indicar la cantidad de caries.
+#### 3. `FirebaseService`
+Esta clase es responsable de leer datos de Firebase y procesarlos concurrentemente utilizando un `ForkJoinPool`. También se encarga de enviar los datos procesados a través del WebSocket.
 
-- **Eyesight (left)**: Agudeza visual del ojo izquierdo. Normalmente, 1.0 indica una visión normal, mientras que valores superiores o inferiores sugieren mejor o peor visión, respectivamente.
+- **Métodos**:
+  - `readData`: Lee los datos desde Firebase, los procesa y los envía al WebSocket.
+  - `FirebaseCallback`: Una interfaz que permite manejar los datos una vez leídos desde Firebase.
 
-- **Eyesight (right)**: Agudeza visual del ojo derecho. Normalmente, 1.0 indica una visión normal, mientras que valores superiores o inferiores sugieren mejor o peor visión, respectivamente.
+#### 4. `DataProcessor`
+Esta clase maneja el procesamiento concurrente de los datos utilizando un `ForkJoinTask`. Implementa un algoritmo para dividir y procesar los datos biológicos de manera eficiente.
 
-- **Fasting blood sugar**: Nivel de glucosa en sangre después de ayunar. Valores elevados pueden ser un indicador de diabetes o prediabetes.
+- **Métodos**:
+  - `compute`: Divide el trabajo en dos tareas si el tamaño de los datos es grande, y los procesa concurrentemente.
+  - `process`: Calcula el promedio de creatinina para los fumadores y realiza cualquier procesamiento necesario de los datos.
 
-- **Gender**: Género de la persona, con "M" para masculino y "F" para femenino.
+#### 5. `DataWebSocketHandler`
+Esta clase maneja las conexiones WebSocket y envía datos procesados en tiempo real a los clientes conectados.
 
-- **Hearing (left)**: Capacidad auditiva del oído izquierdo. Valores cercanos a 1 indican audición normal.
+- **Métodos**:
+  - `sendProcessedData`: Enviar los datos procesados a todos los clientes conectados al WebSocket.
 
-- **Hearing (right)**: Capacidad auditiva del oído derecho. Valores cercanos a 1 indican audición normal.
+#### 6. `FirebaseController`
+Este controlador expone un endpoint REST para permitir la lectura de datos desde Firebase.
 
-- **Height (cm)**: Altura de la persona en centímetros.
+- **Endpoints**:
+  - `/read`: Permite leer datos de Firebase a través de un path proporcionado como parámetro.
 
-- **Hemoglobin**: Nivel de hemoglobina en la sangre. Valores anormales pueden indicar anemia o problemas de salud relacionados con la sangre.
+### Visualización de Datos (Frontend)
 
-- **Oral**: Probablemente indica si la persona se ha sometido a un examen oral o si tiene problemas orales. Valor "Y" sugiere "sí".
+La visualización de los datos procesados se realiza utilizando **D3.js**. Se han implementado diferentes gráficos para representar visualmente los datos biológicos en tiempo real.
 
-- **Relaxation**: Podría indicar la presión arterial diastólica (el número más bajo en una medición de la presión arterial).
+#### 1. Gráfico de Fumadores y No Fumadores
+Representa la distribución de fumadores y no fumadores por género en un gráfico de barras.
 
-- **Serum creatinine**: Niveles de creatinina en suero, lo que puede indicar la función renal.
+#### 2. Gráfico de Creatinina (Box Plot)
+Muestra la distribución de los niveles de creatinina sérica entre fumadores y no fumadores utilizando un gráfico de caja (box plot).
 
-- **Smoking**: Indica si la persona fuma o no, con 0 para no fumador y 1 para fumador.
+#### 3. Gráfico En Blanco
+Este gráfico está vacío por decisión de diseño actual.
 
-- **Systolic**: Presión arterial sistólica (el número más alto en una medición de la presión arterial). Valores elevados pueden ser un indicador de hipertensión.
+#### 4. Gráfico de Enzimas Hepáticas
+Compara los niveles de las enzimas AST, ALT y Gtp entre fumadores y no fumadores en un gráfico de barras.
+
+### Archivos Frontend
+
+- **`index.html`**: Página principal que incluye los contenedores para los gráficos y carga los archivos `script.js` y `style.css`.
+- **`style.css`**: Define los estilos para la disposición de los gráficos en una cuadrícula y el formato visual general.
+- **`script.js`**: Contiene toda la lógica de D3.js para generar y actualizar los gráficos en tiempo real.
+
+### Requisitos
+
+- **Java 11 o superior**
+- **Spring Boot**
+- **Firebase SDK**
+- **D3.js**
+
+### Link al repositorio:
+
+https://github.com/ConcurrenteSistemaAnalisisDatos/SistemaAnalisisDatosConcurrente.git
