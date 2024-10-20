@@ -5,36 +5,19 @@ body {
     padding: 0;
 }
 
-.container {
-    width: 80%;
+.grid-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 20px;
+    width: 90%;
     margin: 0 auto;
-    text-align: center;
     padding: 20px;
 }
 
-h1 {
-    color: #333;
-    margin-bottom: 20px;
-}
-
-#chart {
-    width: 100%;
-    height: 500px;
-    margin: 0 auto;
+.chart {
     border: 1px solid #ccc;
-    background-color: #fff;
-}
-
-#performance-data {
-    margin-top: 20px;
-}
-
-#performance-data p {
-    font-size: 1.2em;
-    color: #333;
-}
-
-#data-rate {
-    font-weight: bold;
-    color: #28a745;
+    background-color: white;
+    height: 400px;
+    padding: 10px;
 }

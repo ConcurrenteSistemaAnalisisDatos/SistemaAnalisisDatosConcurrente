@@ -1,82 +1,108 @@
-// Configuración inicial de la gráfica
-const margin = { top: 20, right: 30, bottom: 40, left: 50 };
-const width = 960 - margin.left - margin.right;
-const height = 500 - margin.top - margin.bottom;
+let totalData = {
+    "F-Non-smoker": 0,
+    "F-Smoker": 0,
+    "M-Non-smoker": 0,
+    "M-Smoker": 0
+};
 
-// Crear un SVG dentro del div con id 'chart'
-const svg = d3.select("#chart")
-    .append("svg")
-    .attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom)
-    .append("g")
-    .attr("transform", `translate(${margin.left},${margin.top})`);
+// Datos originales para sumar progresivamente
+const originalData = [
+    { gender: 'F', smoking: 'Non-smoker', count: 360 },
+    { gender: 'F', smoking: 'Smoker', count: 22 },
+    { gender: 'M', smoking: 'Non-smoker', count: 260 },
+    { gender: 'M', smoking: 'Smoker', count: 356 }
+];
 
-// Crear escalas para el eje X (tiempo) y el eje Y (datos procesados por segundo)
-const x = d3.scaleTime().range([0, width]);
-const y = d3.scaleLinear().range([height, 0]);
+let processedChunks = 0;
+const totalChunks = 50; // Total de intervalos para dividir la carga
+const timePerChunk = 400; // Tiempo por intervalo en milisegundos
 
-// Crear los ejes
-const xAxis = d3.axisBottom(x);
-const yAxis = d3.axisLeft(y);
+function updateBarChart() {
+    // En cada intervalo, sumamos progresivamente los datos
+    originalData.forEach((entry) => {
+        const increment = entry.count / totalChunks; // Incremento por cada intervalo
+        totalData[`${entry.gender}-${entry.smoking}`] += increment;
+    });
 
-// Añadir los ejes al gráfico
-svg.append("g")
-    .attr("transform", `translate(0,${height})`)
-    .attr("class", "x-axis");
+    // Limpiar el gráfico anterior
+    d3.select("#chart1").selectAll("*").remove();
 
-svg.append("g")
-    .attr("class", "y-axis");
+    // Configuración de la visualización
+    const margin = { top: 20, right: 30, bottom: 40, left: 60 },
+        width = 400 - margin.left - margin.right,
+        height = 400 - margin.top - margin.bottom;
 
-// Datos iniciales de prueba
-let data = [];
+    const svg = d3.select("#chart1")
+        .append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform", `translate(${margin.left},${margin.top})`);
 
-// Crear la línea que representará el rendimiento
-const line = d3.line()
-    .x(d => x(d.time))
-    .y(d => y(d.rate));
+    const data = [
+        { gender: 'F', smoking: 'Non-smoker', count: totalData["F-Non-smoker"] },
+        { gender: 'F', smoking: 'Smoker', count: totalData["F-Smoker"] },
+        { gender: 'M', smoking: 'Non-smoker', count: totalData["M-Non-smoker"] },
+        { gender: 'M', smoking: 'Smoker', count: totalData["M-Smoker"] }
+    ];
 
-// Función para actualizar la gráfica en tiempo real
-function updateChart(newData) {
-    // Añadir el nuevo dato al array
-    data.push(newData);
+    // Escalas
+    const x = d3.scaleBand()
+        .domain(data.map(d => `${d.gender} - ${d.smoking}`))
+        .range([0, width])
+        .padding(0.2);
 
-    // Mantener solo los últimos 50 puntos en el array (para que la gráfica no crezca indefinidamente)
-    if (data.length > 50) {
-        data.shift();
+    const y = d3.scaleLinear()
+        .domain([0, d3.max(data, d => d.count)])
+        .nice()
+        .range([height, 0]);
+
+    // Ejes
+    svg.append("g")
+        .attr("class", "x-axis")
+        .attr("transform", `translate(0, ${height})`)
+        .call(d3.axisBottom(x))
+        .selectAll("text")
+        .attr("transform", "rotate(45)")
+        .style("text-anchor", "start");
+
+    svg.append("g")
+        .attr("class", "y-axis")
+        .call(d3.axisLeft(y).ticks(10));
+
+    // Barras
+    svg.selectAll(".bar")
+        .data(data)
+        .enter()
+        .append("rect")
+        .attr("class", "bar")
+        .attr("x", d => x(`${d.gender} - ${d.smoking}`))
+        .attr("y", d => y(d.count))
+        .attr("width", x.bandwidth())
+        .attr("height", d => height - y(d.count));
+
+    // Etiquetas de ejes
+    svg.append("text")
+        .attr("x", -(height / 2))
+        .attr("y", -40)
+        .attr("transform", "rotate(-90)")
+        .attr("text-anchor", "middle")
+        .attr("class", "axis-label")
+        .text("Count");
+
+    svg.append("text")
+        .attr("x", width / 2)
+        .attr("y", height + 35)
+        .attr("text-anchor", "middle")
+        .attr("class", "axis-label")
+        .text("Gender - Smoking Status");
+
+    // Verificamos si ya hemos procesado todos los intervalos
+    processedChunks++;
+    if (processedChunks >= totalChunks) {
+        clearInterval(intervalId); // Detenemos la actualización una vez que alcanzamos el total
     }
-
-    // Actualizar las escalas
-    x.domain(d3.extent(data, d => d.time));
-    y.domain([0, d3.max(data, d => d.rate)]);
-
-    // Seleccionar la línea y actualizarla con los nuevos datos
-    const path = svg.selectAll(".line").data([data]);
-
-    path.enter()
-        .append("path")
-        .attr("class", "line")
-        .merge(path)
-        .attr("d", line)
-        .attr("fill", "none")
-        .attr("stroke", "#007bff")
-        .attr("stroke-width", 2);
-
-    // Actualizar los ejes
-    svg.select(".x-axis").call(xAxis);
-    svg.select(".y-axis").call(yAxis);
 }
 
-// Simulación de datos que llegan en tiempo real
-function generateRandomData() {
-    const now = new Date();
-    const rate = Math.round(Math.random() * 100); // Simular un procesamiento de datos aleatorio
-
-    // Actualizar el valor en el DOM
-    document.getElementById('data-rate').innerText = rate;
-
-    // Llamar a la función de actualización con el nuevo dato
-    updateChart({ time: now, rate: rate });
-}
-
-// Actualizar la gráfica cada 2 segundos
-setInterval(generateRandomData, 2000);
+// Actualizamos el gráfico cada 400ms para completar en 20 segundos
+const intervalId = setInterval(updateBarChart, timePerChunk);

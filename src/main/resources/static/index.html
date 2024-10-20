@@ -3,20 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Real-time System Performance</title>
-    <link rel="stylesheet" href="style.css">
-    <!-- Cargar D3.js -->
+    <title>Real-time Data Visualization</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div class="container">
-    <h1>Real-Time System Performance</h1>
-    <!-- Contenedor para la gráfica -->
-    <div id="chart"></div>
-    <!-- Contenedor para los datos de rendimiento en tiempo real -->
-    <div id="performance-data">
-        <p>Data Processed Per Second: <span id="data-rate">0</span></p>
-    </div>
+<div class="grid-container">
+    <div id="chart1" class="chart"></div>
+    <div id="chart2" class="chart"></div>
+    <div id="chart3" class="chart"></div>
+    <div id="chart4" class="chart"></div>
 </div>
 
 <script src="script.js"></script>
