@@ -7,8 +7,8 @@ body {
 
 .grid-container {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: 1fr 1fr;
+    grid-template-columns: repeat(2, 1fr);  /* Dos columnas de igual ancho */
+    grid-template-rows: repeat(2, 1fr);     /* Dos filas de igual alto */
     gap: 20px;
     width: 90%;
     margin: 0 auto;
@@ -18,6 +18,7 @@ body {
 .chart {
     border: 1px solid #ccc;
     background-color: white;
-    height: 400px;
+    height: 400px; /* Altura fija para los gráficos */
     padding: 10px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); /* Sombra ligera para mejor visualización */
 }
