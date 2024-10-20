@@ -39,16 +39,13 @@ const originalEnzymeData = [
 
 // Función para actualizar el primer gráfico (Bar Chart Fumadores y no fumadores)
 function updateBarChart() {
-    // Progresivamente sumamos los datos
     originalData.forEach((entry) => {
         const increment = entry.count / totalChunks;
         totalData[`${entry.gender}-${entry.smoking}`] += increment;
     });
 
-    // Limpiamos el gráfico anterior
     d3.select("#chart1").selectAll("*").remove();
 
-    // Configuración de dimensiones y márgenes
     const margin = { top: 20, right: 30, bottom: 40, left: 60 },
         width = 400 - margin.left - margin.right,
         height = 400 - margin.top - margin.bottom;
@@ -100,7 +97,6 @@ function updateBarChart() {
         .attr("height", d => height - y(d.count))
         .attr("fill", "#69b3a2");
 
-    // Verificación del progreso
     processedChunks++;
     if (processedChunks >= totalChunks) {
         clearInterval(intervalId); // Detenemos la actualización al completar
@@ -109,7 +105,6 @@ function updateBarChart() {
 
 // Función para el gráfico de enzimas en tiempo real
 function updateBarChartEnzymes() {
-    // Incremento progresivo de los datos
     originalEnzymeData.forEach((entry) => {
         const incrementSmoker = entry.smoker / totalChunks;
         const incrementNonSmoker = entry.non_smoker / totalChunks;
@@ -118,7 +113,6 @@ function updateBarChartEnzymes() {
         totalEnzymeData[`${entry.enzyme}-NonSmoker`] += incrementNonSmoker;
     });
 
-    // Limpiar gráfico anterior
     d3.select("#chart4").selectAll("*").remove();
 
     const margin = { top: 20, right: 30, bottom: 40, left: 60 },
@@ -179,15 +173,99 @@ function updateBarChartEnzymes() {
         .attr("height", d => height - y(d.non_smoker))
         .attr("fill", "#3498db");
 
-    // Verificación del progreso
+    // Mover la leyenda más a la derecha
+    const legendX = width - 56;  // Más a la derecha
+    svg.append("rect").attr("x", legendX).attr("y", 10).attr("width", 15).attr("height", 15).style("fill", "#ff5733");
+    svg.append("text").attr("x", legendX + 20).attr("y", 20).text("Smoker").style("font-size", "12px").attr("alignment-baseline", "middle");
+    svg.append("rect").attr("x", legendX).attr("y", 30).attr("width", 15).attr("height", 15).style("fill", "#3498db");
+    svg.append("text").attr("x", legendX + 20).attr("y", 40).text("Non-smoker").style("font-size", "12px").attr("alignment-baseline", "middle");
+
     processedChunksEnzymes++;
     if (processedChunksEnzymes >= totalChunks) {
-        clearInterval(intervalIdEnzymes); // Detenemos la actualización una vez que alcanzamos el total
+        clearInterval(intervalIdEnzymes);
     }
+}
+
+// Gráfico 2: Box Plot con leyenda explicativa
+function updateBoxPlot() {
+    const data = [
+        { group: 'Non-smoker', creatinine: [0.6, 0.7, 0.8, 0.6, 0.7] },
+        { group: 'Smoker', creatinine: [1.0, 1.2, 1.1, 1.0, 1.3] }
+    ];
+
+    d3.select("#chart2").selectAll("*").remove();
+
+    const margin = { top: 20, right: 30, bottom: 40, left: 60 },
+        width = 400 - margin.left - margin.right,
+        height = 400 - margin.top - margin.bottom;
+
+    const svg = d3.select("#chart2")
+        .append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform", `translate(${margin.left},${margin.top})`);
+
+    const x = d3.scaleBand()
+        .domain(data.map(d => d.group))
+        .range([0, width])
+        .padding(0.2);
+
+    const y = d3.scaleLinear()
+        .domain([0, 2])
+        .nice()
+        .range([height, 0]);
+
+    svg.append("g")
+        .attr("transform", `translate(0,${height})`)
+        .call(d3.axisBottom(x));
+
+    svg.append("g")
+        .call(d3.axisLeft(y));
+
+    data.forEach(d => {
+        const boxWidth = x.bandwidth() / 2;
+        const q1 = d3.quantile(d.creatinine.sort(d3.ascending), 0.25);
+        const median = d3.quantile(d.creatinine.sort(d3.ascending), 0.5);
+        const q3 = d3.quantile(d.creatinine.sort(d3.ascending), 0.75);
+        const iqr = q3 - q1;
+        const min = Math.max(q1 - 1.5 * iqr, 0);
+        const max = Math.min(q3 + 1.5 * iqr, 2);
+
+        svg.append("rect")
+            .attr("x", x(d.group) + boxWidth / 4)
+            .attr("y", y(q3))
+            .attr("width", boxWidth)
+            .attr("height", y(q1) - y(q3))
+            .attr("stroke", "black")
+            .attr("fill", "#69b3a2");
+
+        svg.append("line")
+            .attr("x1", x(d.group) + boxWidth / 4)
+            .attr("x2", x(d.group) + 3 * boxWidth / 4)
+            .attr("y1", y(median))
+            .attr("y2", y(median))
+            .attr("stroke", "black");
+    });
+
+    // Añadir una descripción del gráfico
+    svg.append("text")
+        .attr("x", width / 2)
+        .attr("y", height + margin.bottom - 10)
+        .attr("text-anchor", "middle")
+        .style("font-size", "12px")
+        .style("font-family", "Arial")
+        .text("Distribución de Creatinina en Fumadores y No Fumadores");
+}
+
+// Dejar el gráfico 3 en blanco
+function updateScatterPlot() {
+    d3.select("#chart3").selectAll("*").remove();  // Vaciar cualquier contenido
+    // No añadimos nada ya que el gráfico 3 queda en blanco
 }
 
 // Ejecutar las funciones para generar los gráficos
 intervalId = setInterval(updateBarChart, timePerChunk);  // Gráfico 1
 intervalIdEnzymes = setInterval(updateBarChartEnzymes, timePerChunk);  // Gráfico 4 en tiempo real
 updateBoxPlot();      // Gráfico 2
-updateScatterPlot();  // Gráfico 3
+updateScatterPlot();  // Gráfico 3 en blanco
